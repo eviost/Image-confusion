@@ -6,13 +6,13 @@
     <title>Hilbert Image Scrambler - 空间填充曲线混淆工具</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        // 使用 CSS 变量定义动态主题色
                         skin: {
                             primary: 'var(--color-primary)',       
                             'primary-hover': 'var(--color-primary-hover)',
@@ -20,27 +20,17 @@
                             'primary-border': 'var(--color-primary-border)',
                             secondary: 'var(--color-secondary)',   
                             accent: 'var(--color-accent)',         
-                            
                             'bg-1': 'var(--color-bg-1)',
                             'bg-2': 'var(--color-bg-2)',
                             'bg-3': 'var(--color-bg-3)',
                         },
                         gray: {
-                            50: '#f9fafb',
-                            100: '#f3f4f6',
-                            200: '#e5e7eb',
-                            300: '#d1d5db',
-                            400: '#9ca3af',
-                            500: '#6b7280',
-                            600: '#4b5563',
-                            700: '#374151',
                             750: '#2d3342',
-                            800: '#1f2937',
-                            900: '#111827',
+                            850: '#1a202c',
                         }
                     },
                     fontFamily: {
-                        sans: ['"Nunito"', 'Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                        sans: ['"Nunito"', 'Inter', 'sans-serif'],
                     },
                     animation: {
                         'blob': 'blob 7s infinite',
@@ -61,60 +51,36 @@
     
     <style>
         :root {
-            /* 默认主题: Lavender Dreams */
             --color-primary: #7c3aed; 
             --color-primary-hover: #6d28d9; 
             --color-primary-light: #ede9fe; 
             --color-primary-border: #ddd6fe; 
-            
             --color-secondary: #ec4899; 
             --color-accent: #6366f1; 
-            
             --color-bg-1: #fdf2f8; 
             --color-bg-2: #faf5ff; 
             --color-bg-3: #eff6ff; 
-            
             --scroll-thumb: #d8b4fe;
         }
-
         [data-theme="miku"] {
             --color-primary: #39C5BB; 
             --color-primary-hover: #2DA8A0;
             --color-primary-light: #E0F2F1; 
             --color-primary-border: #B2DFDB;
-            
             --color-secondary: #E4007F; 
             --color-accent: #39C5BB; 
-            
             --color-bg-1: #F0FDFA; 
             --color-bg-2: #FDF4FF; 
             --color-bg-3: #F0F9FF; 
-            
             --scroll-thumb: #39C5BB;
         }
-
-        body {
-            font-family: 'Nunito', sans-serif;
-        }
+        body { font-family: 'Nunito', sans-serif; }
         
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--scroll-thumb);
-            border-radius: 10px;
-        }
-        .dark ::-webkit-scrollbar-thumb {
-            background: var(--color-primary);
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            opacity: 0.8;
-        }
-
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: var(--color-primary); }
+        
         .canvas-pattern {
             background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
             background-size: 20px 20px;
@@ -123,34 +89,18 @@
             background-image: radial-gradient(#374151 1px, transparent 1px);
         }
 
-        .fade-in {
-            animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .slide-transition {
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        .fade-in { animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .slide-transition { transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.3s ease; }
+        
         .spinner {
             border-top-color: var(--color-primary);
             animation: spin 1s linear infinite;
         }
-
-        .shake-anim {
-            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
-            20%, 40%, 60%, 80% { transform: translateX(4px); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .shake-anim { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); } 20%, 40%, 60%, 80% { transform: translateX(4px); } }
         
         .glass-panel {
             background: rgba(255, 255, 255, 0.7);
@@ -162,62 +112,69 @@
             background: rgba(31, 41, 55, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
+        
+        .thumb-item { border-radius: 1rem; }
+        .thumb-item.active {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px var(--color-primary-light);
+        }
+        .dark .thumb-item.active {
+            box-shadow: 0 0 0 3px rgba(57, 197, 187, 0.3);
+        }
+
+        .input-disabled {
+            background-color: rgba(229, 231, 235, 0.5);
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+        .dark .input-disabled {
+            background-color: rgba(31, 41, 55, 0.5);
+            color: #6b7280;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-skin-bg-1 via-skin-bg-2 to-skin-bg-3 dark:from-gray-900 dark:via-gray-800 dark:to-slate-900 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-500 relative overflow-x-hidden">
 
-    <!-- 动态背景装饰球 -->
+    <!-- 背景装饰 -->
     <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
         <div class="absolute top-0 left-1/4 w-96 h-96 bg-skin-primary rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
         <div class="absolute top-0 right-1/4 w-96 h-96 bg-skin-secondary rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
         <div class="absolute -bottom-32 left-1/3 w-96 h-96 bg-skin-accent rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
     </div>
 
-    <!-- Controls Container -->
+    <!-- Controls -->
     <div class="fixed top-6 right-6 z-50 flex gap-3">
-        <!-- Theme Color Switcher (Miku Button) -->
-        <button id="colorToggle" class="p-3 rounded-full glass-panel shadow-lg text-skin-primary hover:scale-110 hover:rotate-12 transition-all duration-300 group" title="切换主题配色">
+        <button id="colorToggle" class="p-3 rounded-full glass-panel shadow-lg text-skin-primary hover:scale-110 hover:rotate-12 transition-all duration-300 group" title="切换主题">
             <i data-lucide="palette" class="w-6 h-6 fill-current group-hover:hidden"></i>
             <i data-lucide="sparkles" class="w-6 h-6 hidden group-hover:block text-skin-secondary"></i>
         </button>
-
-        <!-- Dark/Light Toggle -->
         <button id="themeToggle" class="p-3 rounded-full glass-panel shadow-lg text-skin-primary dark:text-gray-300 hover:scale-110 hover:rotate-12 transition-all duration-300">
             <i data-lucide="moon" class="w-6 h-6 hidden dark:block fill-current"></i>
             <i data-lucide="sun" class="w-6 h-6 block dark:hidden fill-current"></i>
         </button>
     </div>
 
-    <!-- Fullscreen Modal (Fast Transition) -->
+    <!-- Fullscreen Modal -->
     <div id="fullscreenModal" class="fixed inset-0 z-[100] bg-white/30 dark:bg-gray-900/80 backdrop-blur-2xl hidden flex items-center justify-center cursor-zoom-out opacity-0 transition-opacity duration-200">
-        <img id="fullscreenImage" class="max-w-[90vw] max-h-[90vh] object-contain shadow-2xl rounded-2xl transform scale-95 transition-transform duration-200" src="" alt="Fullscreen Preview">
-        <div class="absolute top-6 right-6 text-gray-600 dark:text-gray-300 text-sm font-bold bg-white/60 dark:bg-black/40 px-4 py-2 rounded-full pointer-events-none backdrop-blur-md border border-white/20 dark:border-gray-600 shadow-sm">
+        <img id="fullscreenImage" class="max-w-[90vw] max-h-[90vh] object-contain shadow-2xl rounded-3xl transform scale-95 transition-transform duration-200" src="" alt="Fullscreen Preview">
+        <div class="absolute top-6 right-6 text-gray-600 dark:text-gray-300 text-sm font-bold bg-white/60 dark:bg-black/40 px-5 py-2.5 rounded-full pointer-events-none backdrop-blur-md border border-white/20 dark:border-gray-600 shadow-sm">
             点击任意处关闭
         </div>
     </div>
 
-    <!-- Double Scramble Warning Modal (NEW) -->
+    <!-- Warning Modal -->
     <div id="warningModal" class="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center hidden opacity-0 transition-opacity duration-200">
         <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 max-w-sm w-full mx-4 shadow-2xl transform scale-95 transition-transform duration-200" id="warningModalContent">
             <div class="flex flex-col items-center text-center gap-4">
                 <div class="p-3 bg-amber-100 dark:bg-amber-900/30 rounded-full text-amber-500 animate-pulse">
-                    <i data-lucide="alert-triangle" class="w-8 h-8"></i>
+                    <i data-lucide="alert-triangle" class="w-10 h-10"></i>
                 </div>
-                <h3 class="text-lg font-extrabold text-gray-800 dark:text-white">疑似重复混淆</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-                    这张图片看起来已经混淆过了。<br>
-                    如果在【混淆】的基础上再次混淆，可能导致<span class="text-rose-500 font-bold">无法还原</span>！
+                <h3 class="text-lg font-extrabold text-gray-800 dark:text-white" id="warningModalTitle">提示</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed" id="warningModalText">
+                    <!-- Dynamic Text -->
                 </p>
-                
-                <div class="grid grid-cols-2 gap-3 w-full mt-2">
-                    <!-- Recommendation: Switch to Unscramble -->
-                    <button id="warnSwitchBtn" class="col-span-1 bg-skin-primary hover:brightness-110 text-white py-3 rounded-xl font-bold transition-all shadow-lg shadow-skin-primary/20 flex items-center justify-center gap-2">
-                        <i data-lucide="arrow-right-left" class="w-4 h-4"></i> 切换还原
-                    </button>
-                    <!-- Danger: Continue -->
-                    <button id="warnContinueBtn" class="col-span-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 py-3 rounded-xl font-bold transition-all">
-                        强制混淆
-                    </button>
+                <div class="grid grid-cols-2 gap-4 w-full mt-2" id="warningModalButtons">
+                    <!-- Dynamic Buttons -->
                 </div>
             </div>
         </div>
@@ -242,10 +199,6 @@
                     <p class="text-gray-500 dark:text-gray-400 text-sm">
                         用于和好友分享在群聊公共场合不便直接发出来的图片<br>仅供学习参考使用，请在24小时内删除相关图像
                     </p>
-                    <div class="mt-3 inline-flex items-center gap-2 px-4 py-1.5 bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-full text-xs font-bold border border-amber-100 dark:border-amber-800/50 shadow-sm">
-                        <i data-lucide="alert-circle" class="w-4 h-4"></i>
-                        使用前必看：仅限在本站混淆的图片可以解密，其他混淆图片无法解密，望周知！！！
-                    </div>
                 </div>
             </div>
         </header>
@@ -253,34 +206,34 @@
         <!-- Main Workspace -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
-            <!-- Controls Panel -->
+            <!-- Controls Panel (Left) -->
             <div class="lg:col-span-4 xl:col-span-3 space-y-6">
-                
                 <!-- Upload Zone -->
-                <div class="glass-panel rounded-3xl p-6 shadow-xl transition-all hover:shadow-2xl hover:-translate-y-1">
+                <div class="glass-panel rounded-[2rem] p-6 shadow-xl transition-all hover:shadow-2xl hover:-translate-y-1">
                     <h2 class="text-xl font-bold mb-5 flex items-center gap-3 text-skin-primary dark:text-skin-primary">
-                        <div class="p-2 bg-skin-primary-light dark:bg-gray-700 rounded-xl">
+                        <div class="p-2.5 bg-skin-primary-light dark:bg-gray-700 rounded-2xl">
                             <i data-lucide="upload-cloud" class="w-6 h-6"></i>
                         </div>
                         输入图片
                     </h2>
-                    <label id="dropZone" for="fileInput" class="block border-2 border-dashed border-skin-primary-border dark:border-gray-600 rounded-2xl p-8 text-center hover:border-skin-primary hover:bg-skin-primary-light/50 dark:hover:bg-gray-700/50 transition-all duration-300 cursor-pointer group relative overflow-hidden">
-                        <input type="file" id="fileInput" accept="image/png, image/jpeg, image/webp" class="hidden">
+                    <label id="dropZone" for="fileInput" class="block border-2 border-dashed border-skin-primary-border dark:border-gray-600 rounded-3xl p-8 text-center hover:border-skin-primary hover:bg-skin-primary-light/50 dark:hover:bg-gray-700/50 transition-all duration-300 cursor-pointer group relative overflow-hidden">
+                        <input type="file" id="fileInput" accept="image/png, image/jpeg, image/webp" class="hidden" multiple>
                         <div class="flex flex-col items-center gap-4 relative z-10 pointer-events-none">
                             <div class="w-16 h-16 rounded-full bg-skin-primary-light dark:bg-gray-700 flex items-center justify-center group-hover:scale-110 group-hover:bg-skin-primary group-hover:text-white transition-all duration-300 shadow-sm">
                                 <i data-lucide="image-plus" class="w-8 h-8 text-skin-primary dark:text-gray-300 group-hover:text-white"></i>
                             </div>
                             <p class="text-base font-medium text-gray-500 dark:text-gray-400 group-hover:text-skin-primary dark:group-hover:text-skin-primary transition-colors">
-                                点击或拖拽图片至此<br><span class="text-xs font-normal opacity-70">(支持 PNG, JPG, WebP)</span>
+                                点击或拖拽图片至此<br>
+                                <span class="text-xs font-normal opacity-70">(支持批量 · Ctrl+V)</span>
                             </p>
                         </div>
                     </label>
                 </div>
 
                 <!-- Parameters -->
-                <div class="glass-panel rounded-3xl p-6 shadow-xl transition-all">
+                <div class="glass-panel rounded-[2rem] p-6 shadow-xl transition-all">
                     <h2 class="text-xl font-bold mb-6 flex items-center gap-3 text-skin-primary dark:text-skin-primary">
-                        <div class="p-2 bg-skin-primary-light dark:bg-gray-700 rounded-xl">
+                        <div class="p-2.5 bg-skin-primary-light dark:bg-gray-700 rounded-2xl">
                             <i data-lucide="sliders-horizontal" class="w-6 h-6 text-skin-secondary dark:text-skin-secondary"></i>
                         </div>
                         参数设置
@@ -295,29 +248,39 @@
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i data-lucide="lock" class="w-4 h-4 text-gray-400"></i>
                                     </div>
-                                    <input type="password" id="keyInput" placeholder="输入密码或数字" class="w-full bg-gray-50/50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 rounded-2xl pl-10 pr-4 py-3 text-gray-800 dark:text-white focus:outline-none focus:border-skin-primary focus:ring-2 focus:ring-skin-primary-light dark:focus:ring-gray-700 transition-all">
+                                    <input type="password" id="keyInput" placeholder="输入密码 (留空则使用默认)" class="w-full bg-gray-50/50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 rounded-3xl pl-10 pr-4 py-3 text-gray-800 dark:text-white focus:outline-none focus:border-skin-primary focus:ring-2 focus:ring-skin-primary-light dark:focus:ring-gray-700 transition-all">
                                 </div>
-                                <button id="togglePass" class="px-3 bg-gray-100 dark:bg-gray-700 rounded-2xl hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 transition-colors text-gray-500 dark:text-gray-300 flex items-center justify-center">
+                                <button id="togglePass" class="px-3 bg-gray-100 dark:bg-gray-700 rounded-3xl hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 transition-colors text-gray-500 dark:text-gray-300 flex items-center justify-center">
                                     <i data-lucide="eye-off" class="w-5 h-5"></i>
                                 </button>
                             </div>
                             
-                            <!-- Random Password Generator Section -->
-                            <div class="mt-4 p-4 bg-gradient-to-br from-skin-bg-1 to-skin-bg-2 dark:from-gray-800 dark:to-gray-750 rounded-2xl border border-skin-primary-border dark:border-gray-600/50 shadow-inner">
+                            <!-- Compatibility Mode Toggle (Only for Decrypt) -->
+                            <div id="compatModeContainer" class="mt-2 px-1 hidden transition-all duration-300">
+                                <label class="flex items-center gap-2 cursor-pointer group select-none" title="用于还原其他工具(如小番茄)生成的混淆图片">
+                                    <div class="relative">
+                                        <input type="checkbox" id="compatibilityMode" class="peer sr-only">
+                                        <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-skin-primary-light dark:peer-focus:ring-gray-700 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-amber-500"></div>
+                                    </div>
+                                    <span class="text-xs font-bold text-gray-500 group-hover:text-amber-500 transition-colors">兼容模式 (仅用于还原小番茄混淆图)</span>
+                                </label>
+                            </div>
+                            
+                            <!-- Tools -->
+                            <div id="passwordTools" class="mt-4 p-4 bg-gradient-to-br from-skin-bg-1 to-skin-bg-2 dark:from-gray-800 dark:to-gray-750 rounded-3xl border border-skin-primary-border dark:border-gray-600/50 shadow-inner transition-all duration-300">
                                 <div class="flex items-center justify-between mb-3">
                                     <span class="text-xs font-bold text-skin-primary dark:text-skin-primary flex items-center gap-1.5">
                                         <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> 懒人工具
                                     </span>
                                     <div class="flex gap-2">
-                                        <button id="genKeyBtn" class="text-xs bg-white dark:bg-gray-700 shadow-sm border border-skin-primary-border dark:border-gray-500 text-skin-primary dark:text-skin-primary px-3 py-1.5 rounded-xl hover:bg-skin-primary-light dark:hover:bg-gray-600 hover:-translate-y-0.5 transition-all flex items-center gap-1 group font-bold" title="生成随机字符串">
+                                        <button id="genKeyBtn" class="text-xs bg-white dark:bg-gray-700 shadow-sm border border-skin-primary-border dark:border-gray-500 text-skin-primary dark:text-skin-primary px-3 py-1.5 rounded-2xl hover:bg-skin-primary-light dark:hover:bg-gray-600 hover:-translate-y-0.5 transition-all flex items-center gap-1 group font-bold active:scale-95">
                                             <i data-lucide="refresh-cw" class="w-3 h-3 group-hover:rotate-180 transition-transform duration-500"></i> 随机
                                         </button>
-                                        <button id="copyKeyBtn" class="text-xs bg-white dark:bg-gray-700 shadow-sm border border-skin-primary-border dark:border-gray-500 text-gray-600 dark:text-gray-300 px-3 py-1.5 rounded-xl hover:bg-skin-primary-light dark:hover:bg-gray-600 hover:-translate-y-0.5 transition-all flex items-center gap-1 font-bold" title="复制当前密码">
+                                        <button id="copyKeyBtn" class="text-xs bg-white dark:bg-gray-700 shadow-sm border border-skin-primary-border dark:border-gray-500 text-gray-600 dark:text-gray-300 px-3 py-1.5 rounded-2xl hover:bg-skin-primary-light dark:hover:bg-gray-600 hover:-translate-y-0.5 transition-all flex items-center gap-1 font-bold active:scale-95">
                                             <i data-lucide="copy" class="w-3 h-3"></i> 复制
                                         </button>
                                     </div>
                                 </div>
-                                
                                 <p class="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed opacity-90 mt-2">
                                     不想输密码？试试随机生成器，把生成的密码发给好友即可。
                                 </p>
@@ -325,22 +288,15 @@
                             
                             <div class="flex items-center justify-between mt-3 px-1">
                                 <p class="text-xs text-gray-400 dark:text-gray-500 font-medium">* 解密需用相同密钥</p>
-                                <!-- Force Decrypt Toggle -->
-                                <label class="flex items-center gap-2 cursor-pointer group select-none" title="如果是旧版工具生成的图片，请勾选此项">
-                                    <div class="relative">
-                                        <input type="checkbox" id="forceDecrypt" class="peer sr-only">
-                                        <div class="w-8 h-4 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-skin-primary-light dark:peer-focus:ring-gray-700 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[0px] after:left-[0px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-skin-primary"></div>
-                                    </div>
-                                    <span class="text-xs text-gray-400 group-hover:text-skin-primary transition-colors">强制显示</span>
-                                </label>
                             </div>
                         </div>
 
                         <!-- Sliding Mode Switch -->
                         <div>
                             <label class="block text-sm font-bold text-gray-600 dark:text-gray-300 mb-2 ml-1">操作模式</label>
-                            <div class="relative flex bg-gray-100 dark:bg-gray-900 p-1.5 rounded-2xl cursor-pointer h-12 shadow-inner" id="modeSwitchContainer">
-                                <div id="modeHighlight" class="absolute top-1.5 bottom-1.5 left-1.5 w-[calc(50%-6px)] bg-white dark:bg-gradient-to-r dark:from-skin-primary dark:to-skin-accent rounded-xl shadow-md slide-transition border border-gray-100 dark:border-none z-0"></div>
+                            <div class="relative flex bg-gray-100 dark:bg-gray-900 p-1.5 rounded-full cursor-pointer h-12 shadow-inner" id="modeSwitchContainer">
+                                <!-- Highlight Pill -->
+                                <div id="modeHighlight" class="absolute top-1.5 bottom-1.5 left-1.5 w-[calc(50%-6px)] bg-white dark:bg-gradient-to-r dark:from-skin-primary dark:to-skin-accent rounded-full shadow-md slide-transition border border-gray-100 dark:border-none z-0"></div>
                                 
                                 <button id="modeScramble" class="relative z-10 w-1/2 text-sm font-bold transition-colors duration-300 text-skin-primary dark:text-white flex items-center justify-center gap-2">
                                     <i data-lucide="lock" class="w-4 h-4"></i> 混淆 (加密)
@@ -355,7 +311,7 @@
                         <div>
                             <label class="block text-sm font-bold text-gray-600 dark:text-gray-300 mb-2 ml-1">输出格式</label>
                             <div class="relative">
-                                <select id="formatSelect" class="w-full bg-gray-50/50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 rounded-2xl px-4 py-3 text-gray-800 dark:text-white focus:outline-none focus:border-skin-primary transition-colors cursor-pointer appearance-none font-medium">
+                                <select id="formatSelect" class="w-full bg-gray-50/50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 rounded-3xl px-4 py-3 text-gray-800 dark:text-white focus:outline-none focus:border-skin-primary transition-colors cursor-pointer appearance-none font-medium">
                                     <option value="original">保持原始格式</option>
                                     <option value="image/png">PNG (无损)</option>
                                     <option value="image/jpeg">JPEG (高压缩)</option>
@@ -371,14 +327,14 @@
                         <div>
                             <label class="block text-sm font-bold text-gray-600 dark:text-gray-300 mb-2 ml-1 flex justify-between">
                                 <span>JPEG/WebP 质量</span>
-                                <span id="qualityVal" class="text-skin-primary dark:text-skin-primary bg-skin-primary-light dark:bg-gray-700 px-2 py-0.5 rounded-lg text-xs">0.9</span>
+                                <span id="qualityVal" class="text-skin-primary dark:text-skin-primary bg-skin-primary-light dark:bg-gray-700 px-2 py-0.5 rounded-full text-xs">0.9</span>
                             </label>
-                            <input type="range" id="qualityRange" min="0.1" max="1.0" step="0.1" value="0.9" class="w-full accent-skin-primary cursor-pointer bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none h-2">
+                            <input type="range" id="qualityRange" min="0.1" max="1.0" step="0.1" value="0.9" class="w-full accent-skin-primary cursor-pointer bg-gray-200 dark:bg-gray-700 rounded-full appearance-none h-2">
                         </div>
                     </div>
                     
                     <!-- Process Button -->
-                    <button id="processBtn" disabled class="w-full mt-6 bg-gradient-to-r from-skin-secondary via-skin-primary to-skin-accent hover:brightness-110 text-white font-extrabold py-3 px-6 rounded-2xl shadow-lg hover:shadow-skin-primary/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition-all flex items-center justify-center gap-3 transform hover:-translate-y-0.5 active:scale-95 z-30 relative group">
+                    <button id="processBtn" disabled class="w-full mt-6 bg-gradient-to-r from-skin-secondary via-skin-primary to-skin-accent hover:brightness-110 text-white font-extrabold py-3 px-6 rounded-full shadow-lg hover:shadow-skin-primary/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition-all flex items-center justify-center gap-3 transform hover:-translate-y-0.5 active:scale-95 z-30 relative group">
                         <span id="processBtnIcon" class="bg-white/20 p-1 rounded-full">
                             <i data-lucide="play" class="w-4 h-4 fill-current"></i>
                         </span>
@@ -387,58 +343,83 @@
                 </div>
             </div>
 
-            <!-- Preview Panel -->
-            <div class="lg:col-span-8 xl:col-span-9 flex flex-col gap-6 h-full">
-                <!-- Canvas Container -->
-                <div id="previewContainer" class="glass-panel rounded-3xl p-2 shadow-xl h-[500px] lg:h-[calc(100vh-14rem)] min-h-[600px] flex flex-col relative overflow-hidden group transition-colors cursor-default">
+            <!-- Right Panel: Preview & List + Bottom Action Bar (Integrated) -->
+            <div class="lg:col-span-8 xl:col-span-9 flex gap-4 h-[500px] lg:h-[calc(100vh-14rem)] min-h-[600px]">
+                
+                <!-- Left: Preview + Action Bar Wrapper -->
+                <div class="flex-1 flex flex-col h-full">
                     
-                    <!-- Action Controls (Reset & Meta) -->
-                    <div class="absolute top-4 right-4 z-20 flex gap-2 pointer-events-none">
-                        <button id="resetBtn" class="hidden pointer-events-auto px-4 py-1.5 bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-700 text-xs font-bold rounded-full text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 shadow-md hover:shadow-lg transition-all flex items-center gap-1.5 group">
-                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 group-hover:-rotate-180 transition-transform duration-500 text-skin-primary"></i> 重置原图
-                        </button>
-                        <span id="imageMeta" class="px-4 py-1.5 bg-black/70 backdrop-blur-md text-xs font-medium rounded-full text-white hidden border border-white/10 shadow-md">0 x 0 px</span>
+                    <!-- Canvas Container -->
+                    <div id="previewContainer" class="flex-1 bg-white dark:bg-gray-800 rounded-3xl p-1 border border-gray-200 dark:border-gray-700 shadow-lg relative overflow-hidden group transition-colors cursor-default flex flex-col">
+                        
+                        <!-- Action Controls -->
+                        <div class="absolute top-4 right-4 z-20 flex gap-2 pointer-events-none">
+                            <button id="resetBtn" class="hidden pointer-events-auto px-4 py-1.5 bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-700 text-xs font-bold rounded-full text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 shadow-md hover:shadow-lg transition-all flex items-center gap-1.5 group">
+                                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 group-hover:-rotate-180 transition-transform duration-500 text-skin-primary"></i> 重置原图
+                            </button>
+                            <span id="imageMeta" class="px-4 py-1.5 bg-black/70 backdrop-blur-md text-xs font-medium rounded-full text-white hidden border border-white/10 shadow-md">0 x 0 px</span>
+                        </div>
+
+                        <div class="absolute bottom-6 left-0 right-0 z-10 text-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <span class="px-4 py-2 bg-black/60 backdrop-blur-md text-xs font-bold rounded-full text-white border border-white/20 shadow-lg flex items-center gap-2 mx-auto w-fit">
+                                <i data-lucide="maximize-2" class="w-3 h-3"></i> 点击图片全屏查看
+                            </span>
+                        </div>
+                        
+                        <!-- Loading Overlay -->
+                        <div id="loadingOverlay" class="absolute inset-0 z-50 bg-white/60 dark:bg-gray-900/60 backdrop-blur-md flex flex-col items-center justify-center hidden transition-opacity duration-200 rounded-3xl pointer-events-auto">
+                            <div id="spinner" class="spinner w-12 h-12 border-4 border-skin-primary-border dark:border-gray-600 border-t-skin-primary dark:border-t-skin-primary rounded-full mb-6"></div>
+                            <div id="errorIcon" class="hidden mb-6 text-rose-500 bg-rose-100 dark:bg-rose-900/30 p-4 rounded-full shadow-inner">
+                                <i data-lucide="alert-triangle" class="w-8 h-8"></i>
+                            </div>
+                            <p id="loadingText" class="text-gray-600 dark:text-gray-200 font-bold text-lg animate-pulse tracking-wide">正在处理中，请稍候...</p>
+                        </div>
+                        
+                        <div id="canvasWrapper" class="flex-1 relative bg-gray-50 dark:bg-gray-900/50 canvas-pattern rounded-2xl flex items-center justify-center overflow-hidden transition-colors border border-gray-100 dark:border-gray-700/50 pointer-events-none">
+                            <div id="placeholderText" class="text-gray-300 dark:text-gray-600 select-none pointer-events-none flex flex-col items-center animate-pulse">
+                                <div class="bg-gray-100 dark:bg-gray-800 p-6 rounded-full mb-4 shadow-inner">
+                                    <i data-lucide="image" class="w-16 h-16 opacity-50"></i>
+                                </div>
+                                <span class="font-bold text-lg opacity-70">预览区域</span>
+                            </div>
+                            <canvas id="mainCanvas" class="max-w-full max-h-full object-contain shadow-2xl hidden transition-opacity duration-300 relative z-10 rounded-xl"></canvas>
+                        </div>
                     </div>
 
-                    <div class="absolute bottom-6 left-0 right-0 z-10 text-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                         <span class="px-4 py-2 bg-black/60 backdrop-blur-md text-xs font-bold rounded-full text-white border border-white/20 shadow-lg flex items-center gap-2 mx-auto w-fit">
-                            <i data-lucide="maximize-2" class="w-3 h-3"></i> 点击图片全屏查看
-                         </span>
-                    </div>
-                    
-                    <!-- Loading Overlay -->
-                    <div id="loadingOverlay" class="absolute inset-0 z-50 bg-white/60 dark:bg-gray-900/60 backdrop-blur-md flex flex-col items-center justify-center hidden transition-opacity duration-200 rounded-2xl pointer-events-auto">
-                        <div id="spinner" class="spinner w-12 h-12 border-4 border-skin-primary-border dark:border-gray-600 border-t-skin-primary dark:border-t-skin-primary rounded-full mb-6"></div>
-                        <!-- Error Icon -->
-                        <div id="errorIcon" class="hidden mb-6 text-rose-500 bg-rose-100 dark:bg-rose-900/30 p-4 rounded-full shadow-inner">
-                            <i data-lucide="alert-triangle" class="w-8 h-8"></i>
-                        </div>
-                        <p id="loadingText" class="text-gray-600 dark:text-gray-200 font-bold text-lg animate-pulse tracking-wide">正在处理中，请稍候...</p>
-                    </div>
-                    
-                    <div id="canvasWrapper" class="flex-1 relative bg-gray-50 dark:bg-gray-900/50 canvas-pattern rounded-2xl flex items-center justify-center overflow-hidden transition-colors border border-gray-100 dark:border-gray-700/50 pointer-events-none">
-                        <div id="placeholderText" class="text-gray-300 dark:text-gray-600 select-none pointer-events-none flex flex-col items-center animate-pulse">
-                            <div class="bg-gray-100 dark:bg-gray-800 p-6 rounded-full mb-4 shadow-inner">
-                                <i data-lucide="image" class="w-16 h-16 opacity-50"></i>
+                    <!-- Action Bar (Separated, Bottom) -->
+                    <div class="glass-panel rounded-3xl p-4 mt-4 flex justify-between items-center shadow-lg border-t border-white/50 dark:border-gray-700/50">
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            <div class="text-sm text-gray-500 dark:text-gray-400 flex items-center font-medium truncate">
+                                <i data-lucide="info" class="w-5 h-5 inline mr-2 text-skin-primary dark:text-skin-primary flex-shrink-0"></i>
+                                <span id="resultInfo" class="truncate">请先上传一张图片</span>
                             </div>
-                            <span class="font-bold text-lg opacity-70">预览区域</span>
                         </div>
-                        <canvas id="mainCanvas" class="max-w-full max-h-full object-contain shadow-2xl hidden transition-opacity duration-300 relative z-10 rounded-lg"></canvas>
+                        <div class="flex gap-3 flex-shrink-0">
+                            <!-- Single Download -->
+                            <button id="downloadBtn" disabled class="bg-emerald-500 hover:bg-emerald-400 text-white px-6 py-2.5 rounded-2xl font-bold shadow-lg hover:shadow-emerald-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition-all flex items-center gap-2 transform active:scale-95 group">
+                                <i data-lucide="download" class="w-5 h-5 group-hover:animate-bounce"></i> 
+                                <span class="hidden sm:inline">下载当前</span>
+                            </button>
+                            <!-- Batch Download -->
+                            <button id="downloadAllBtn" disabled class="bg-purple-500 hover:bg-purple-400 text-white px-6 py-2.5 rounded-2xl font-bold shadow-lg hover:shadow-purple-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition-all flex items-center gap-2 transform active:scale-95 group">
+                                <i data-lucide="archive" class="w-5 h-5"></i> 
+                                <span class="hidden sm:inline">下载全部</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Action Bar -->
-                <div class="glass-panel rounded-3xl p-5 shadow-xl flex justify-between items-center">
-                    <div class="flex items-center gap-3">
-                        <div class="text-sm text-gray-500 dark:text-gray-400 flex items-center font-medium">
-                            <i data-lucide="info" class="w-5 h-5 inline mr-2 text-skin-primary dark:text-skin-primary"></i>
-                            <span id="resultInfo">请先上传一张图片</span>
-                        </div>
+                <!-- Right: Sidebar List (Fixed Width, Full Height) -->
+                <div class="w-28 flex-shrink-0 flex flex-col bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden h-full">
+                    <div class="p-2 text-center border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800 flex-shrink-0">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase">图片列表</span>
                     </div>
-                    <div class="flex gap-2">
-                        <button id="downloadBtn" disabled class="bg-emerald-500 hover:bg-emerald-400 text-white px-8 py-3 rounded-2xl font-bold shadow-lg hover:shadow-emerald-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition-all flex items-center gap-2 transform active:scale-95 group">
-                            <i data-lucide="download" class="w-5 h-5 group-hover:animate-bounce"></i> 下载结果
-                        </button>
+                    <div id="fileList" class="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar">
+                        <!-- Thumbnails -->
+                        <div class="text-center mt-4 opacity-30">
+                            <i data-lucide="layers" class="w-6 h-6 mx-auto mb-1"></i>
+                            <span class="text-[9px]">空</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -449,21 +430,22 @@
             
             <div class="flex flex-wrap justify-center items-center gap-3 opacity-80 hover:opacity-100 transition-opacity pt-2">
                 <span>如果有任何问题欢迎联系作者:</span>
-                
                 <span class="flex items-center gap-1 cursor-text select-all hover:text-skin-primary transition-colors">
                     <i data-lucide="mail" class="w-3.5 h-3.5"></i>
                     <span>huiz3108@gmail.com</span>
                 </span>
-                
                 <span class="text-gray-300 dark:text-gray-700 mx-1">|</span>
-                
-                <a href="https://github.com/eviost" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1 hover:text-skin-primary transition-colors underline decoration-dotted underline-offset-2" title="访问 GitHub 主页">
+                <a href="https://github.com/eviost" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1 hover:text-skin-primary transition-colors underline decoration-dotted underline-offset-2" title="访问 Eviost 的 GitHub">
                     <i data-lucide="github" class="w-3.5 h-3.5"></i>
-                    <span>GitHub</span>
+                    <span>Eviost</span>
+                </a>
+                <span class="text-gray-300 dark:text-gray-700 mx-1">&</span>
+                <a href="https://github.com/MCBBC" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1 hover:text-skin-primary transition-colors underline decoration-dotted underline-offset-2" title="访问 MCBBC 的 GitHub">
+                    <i data-lucide="github" class="w-3.5 h-3.5"></i>
+                    <span>MCBBC</span>
                 </a>
             </div>
         </div>
-
     </div>
 
     <!-- WEB WORKER SCRIPT -->
@@ -473,73 +455,84 @@
         self.cachedH = 0;
 
         self.onmessage = function(e) {
-            const { buffer, width, height, keyStr, isScramble, forceDecrypt } = e.data;
-            
+            // Removed forceDecrypt from destructuring
+            const { buffer, width, height, keyStr, isScramble, id, isCompatibilityMode } = e.data;
             try {
-                // 1. Hash Key
-                const seedHash = cyrb53(keyStr);
-                const beaconColors = getBeaconColors(keyStr);
+                let pixelIndices;
+                let shiftAmount;
                 
-                // 2. Pre-processing (Beacon)
-                // Using Uint8ClampedArray to access pixel bytes directly
-                const bytes = new Uint8ClampedArray(buffer);
-                
-                if (isScramble) {
-                    injectBeacon(bytes, width, beaconColors);
-                }
+                if (isCompatibilityMode) {
+                    // --- Compatibility Mode (Generalized Hilbert) ---
+                    const coords = gilbert2d(width, height);
+                    const totalPixels = width * height;
+                    pixelIndices = new Int32Array(totalPixels);
+                    
+                    for(let i = 0; i < totalPixels; i++) {
+                        const x = coords[i][0];
+                        const y = coords[i][1];
+                        pixelIndices[i] = y * width + x;
+                    }
+                    
+                    // Golden Ratio Offset (Fixed for compat)
+                    shiftAmount = Math.round((Math.sqrt(5) - 1) / 2 * totalPixels);
+                    
+                    if (!isScramble) {
+                        shiftAmount = totalPixels - (shiftAmount % totalPixels);
+                    }
 
-                // 3. Hilbert Indices (Cached)
-                if (width !== self.cachedW || height !== self.cachedH) {
-                    self.cachedIndices = generateHilbertIndices(width, height);
-                    self.cachedW = width;
-                    self.cachedH = height;
+                } else {
+                    // --- Standard Mode (Standard Hilbert) ---
+                    const seedHash = cyrb53(keyStr);
+                    const bytes = new Uint8ClampedArray(buffer);
+                    const beaconColors = getBeaconColors(keyStr);
+                    
+                    if (isScramble) {
+                        injectBeacon(bytes, width, beaconColors);
+                    }
+
+                    if (width !== self.cachedW || height !== self.cachedH) {
+                        self.cachedIndices = generateHilbertIndices(width, height);
+                        self.cachedW = width;
+                        self.cachedH = height;
+                    }
+                    pixelIndices = self.cachedIndices;
+                    
+                    const totalPixels = width * height;
+                    shiftAmount = seedHash % totalPixels;
+                    if (!isScramble) shiftAmount = totalPixels - shiftAmount;
                 }
-                const pixelIndices = self.cachedIndices;
+                
                 const totalPixels = width * height;
-
-                // 4. Shuffle
-                // Create new buffer for result
                 const newBuffer = new ArrayBuffer(buffer.byteLength);
-                
-                // Use Uint32Array for 32-bit pixel movement (Faster)
                 const newPixels = new Uint32Array(newBuffer);
                 const oldPixels = new Uint32Array(buffer); 
                 
-                let shiftAmount = seedHash % totalPixels;
-                if (!isScramble) shiftAmount = totalPixels - shiftAmount;
-                
-                // Fast Loop
                 for (let i = 0; i < totalPixels; i++) {
                     const srcIdx = pixelIndices[i];
-                    // Calculate where this pixel should go
                     const destListIdx = (i + shiftAmount) % totalPixels;
                     const destIdx = pixelIndices[destListIdx];
-                    
-                    // Map pixel
                     newPixels[destIdx] = oldPixels[srcIdx];
                 }
                 
-                // 5. Post-processing (Verify Beacon)
                 const resultBytes = new Uint8ClampedArray(newBuffer);
-                if (!isScramble) {
+                
+                // Beacon Verification (Only Standard Mode)
+                if (!isCompatibilityMode && !isScramble) {
+                    const beaconColors = getBeaconColors(keyStr);
                     const isValid = verifyBeacon(resultBytes, width, beaconColors);
-                    if (!isValid && !forceDecrypt) {
+                    
+                    if (!isValid) {
                         throw new Error("密码错误 (验证失败)");
                     }
-                    if (isValid) {
-                        healBeacon(resultBytes, width);
-                    }
+                    healBeacon(resultBytes, width);
                 }
 
-                self.postMessage({ success: true, buffer: newBuffer }, [newBuffer]);
+                self.postMessage({ success: true, buffer: newBuffer, id: id }, [newBuffer]);
                 
             } catch (err) {
-                // On error, return the original buffer so main thread doesn't lose data
-                self.postMessage({ success: false, error: err.message, buffer: buffer }, [buffer]);
+                self.postMessage({ success: false, error: err.message, buffer: buffer, id: id }, [buffer]);
             }
         };
-
-        // --- Helper Functions inside Worker ---
 
         function generateHilbertIndices(width, height) {
             const maxDim = Math.max(width, height);
@@ -548,8 +541,6 @@
             const limit = n * n;
             const indices = new Int32Array(width * height);
             let validCount = 0;
-            
-            // Optimized d2xy (Iterative, bitwise)
             for (let d = 0; d < limit; d++) {
                 let t = d, x = 0, y = 0, s = 1;
                 while (s < n) {
@@ -565,6 +556,57 @@
             }
             return indices;
         }
+        
+        // --- Compatibility Mode: Generalized Hilbert (Gilbert) ---
+        function gilbert2d(width, height) {
+            const coordinates = [];
+            if (width >= height) generate2d(0, 0, width, 0, 0, height, coordinates);
+            else generate2d(0, 0, 0, height, width, 0, coordinates);
+            return coordinates;
+        }
+
+        function generate2d(x, y, ax, ay, bx, by, coordinates) {
+            const w = Math.abs(ax + ay);
+            const h = Math.abs(bx + by);
+            const dax = Math.sign(ax), day = Math.sign(ay);
+            const dbx = Math.sign(bx), dby = Math.sign(by);
+
+            if (h === 1) {
+                for (let i = 0; i < w; i++) {
+                    coordinates.push([x, y]);
+                    x += dax; y += day;
+                }
+                return;
+            }
+            if (w === 1) {
+                for (let i = 0; i < h; i++) {
+                    coordinates.push([x, y]);
+                    x += dbx; y += dby;
+                }
+                return;
+            }
+
+            let ax2 = Math.floor(ax / 2), ay2 = Math.floor(ay / 2);
+            let bx2 = Math.floor(bx / 2), by2 = Math.floor(by / 2);
+            const w2 = Math.abs(ax2 + ay2);
+            const h2 = Math.abs(bx2 + by2);
+
+            if (2 * w > 3 * h) {
+                if ((w2 % 2) && (w > 2)) {
+                    ax2 += dax; ay2 += day;
+                }
+                generate2d(x, y, ax2, ay2, bx, by, coordinates);
+                generate2d(x + ax2, y + ay2, ax - ax2, ay - ay2, bx, by, coordinates);
+            } else {
+                if ((h2 % 2) && (h > 2)) {
+                    bx2 += dbx; by2 += dby;
+                }
+                generate2d(x, y, bx2, by2, ax2, ay2, coordinates);
+                generate2d(x + bx2, y + by2, ax, ay, bx - bx2, by - by2, coordinates);
+                generate2d(x + (ax - dax) + (bx2 - dbx), y + (ay - day) + (by2 - dby),
+                    -bx2, -by2, -(ax - ax2), -(ay - ay2), coordinates);
+            }
+        }
 
         function cyrb53(str, seed = 0) {
             let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
@@ -577,121 +619,141 @@
             return 4294967296 * (2097151 & h2) + (h1 >>> 0);
         }
 
-        // Beacon Utils (Same as Main Thread)
         const BEACON_TOLERANCE = 40; 
-
         function getBeaconColors(keyStr) {
-            // Simple hash-based color gen without full Hilbert dependency
             const h1 = cyrb53(keyStr, 123);
             const h2 = cyrb53(keyStr, 456);
             const h3 = cyrb53(keyStr, 789);
-            
-            const c1 = [(h1 & 0xFF) | 0x80, (h1 >> 8 & 0xFF) | 0x80, (h1 >> 16 & 0xFF) | 0x80];
-            const c2 = [(h2 & 0xFF) | 0x80, (h2 >> 8 & 0xFF) | 0x80, (h2 >> 16 & 0xFF) | 0x80];
-            const c3 = [(h3 & 0xFF) | 0x80, (h3 >> 8 & 0xFF) | 0x80, (h3 >> 16 & 0xFF) | 0x80];
-            
-            return [c1, c2, c3];
+            return [[(h1 & 0xFF) | 0x80, (h1 >> 8 & 0xFF) | 0x80, (h1 >> 16 & 0xFF) | 0x80], [(h2 & 0xFF) | 0x80, (h2 >> 8 & 0xFF) | 0x80, (h2 >> 16 & 0xFF) | 0x80], [(h3 & 0xFF) | 0x80, (h3 >> 8 & 0xFF) | 0x80, (h3 >> 16 & 0xFF) | 0x80]];
         }
-
         function injectBeacon(data, width, colors) {
-            for(let i=0; i<3; i++) {
-                const idx = i * 4;
-                data[idx] = colors[i][0];
-                data[idx+1] = colors[i][1];
-                data[idx+2] = colors[i][2];
-                data[idx+3] = 255; 
-            }
+            for(let i=0; i<3; i++) { const idx = i * 4; data[idx] = colors[i][0]; data[idx+1] = colors[i][1]; data[idx+2] = colors[i][2]; data[idx+3] = 255; }
         }
-
         function verifyBeacon(data, width, colors) {
             let diff = 0;
-            for(let i=0; i<3; i++) {
-                const idx = i * 4;
-                const r = data[idx];
-                const g = data[idx+1];
-                const b = data[idx+2];
-                
-                diff += Math.abs(r - colors[i][0]);
-                diff += Math.abs(g - colors[i][1]);
-                diff += Math.abs(b - colors[i][2]);
-            }
+            for(let i=0; i<3; i++) { const idx = i * 4; const r = data[idx]; const g = data[idx+1]; const b = data[idx+2]; diff += Math.abs(r - colors[i][0]) + Math.abs(g - colors[i][1]) + Math.abs(b - colors[i][2]); }
             return (diff / 9) < BEACON_TOLERANCE;
         }
-
         function healBeacon(data, width) {
-            const sourceIdx = 3 * 4; 
-            const r = data[sourceIdx];
-            const g = data[sourceIdx+1];
-            const b = data[sourceIdx+2];
-            const a = data[sourceIdx+3];
-            
-            for(let i=0; i<3; i++) {
-                const idx = i * 4;
-                data[idx] = r;
-                data[idx+1] = g;
-                data[idx+2] = b;
-                data[idx+3] = a;
-            }
+            const sourceIdx = 3 * 4; const r = data[sourceIdx]; const g = data[sourceIdx+1]; const b = data[sourceIdx+2]; const a = data[sourceIdx+3];
+            for(let i=0; i<3; i++) { const idx = i * 4; data[idx] = r; data[idx+1] = g; data[idx+2] = b; data[idx+3] = a; }
         }
     </script>
 
     <script>
-        // Init Icons
+        // --- UI Variables ---
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const canvas = document.getElementById('mainCanvas');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        const processBtn = document.getElementById('processBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const downloadAllBtn = document.getElementById('downloadAllBtn');
+        const keyInput = document.getElementById('keyInput');
+        const togglePass = document.getElementById('togglePass');
+        const imageMeta = document.getElementById('imageMeta');
+        const genKeyBtn = document.getElementById('genKeyBtn');
+        const copyKeyBtn = document.getElementById('copyKeyBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const modeHighlight = document.getElementById('modeHighlight');
+        const modeScrambleBtn = document.getElementById('modeScramble');
+        const modeUnscrambleBtn = document.getElementById('modeUnscramble');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const loadingText = document.getElementById('loadingText');
+        const spinner = document.getElementById('spinner');
+        const errorIcon = document.getElementById('errorIcon');
+        const fileListContainer = document.getElementById('fileList');
+        const htmlEl = document.documentElement;
+        const themeToggle = document.getElementById('themeToggle');
+        const colorToggle = document.getElementById('colorToggle');
+        const fullscreenModal = document.getElementById('fullscreenModal');
+        const fullscreenImage = document.getElementById('fullscreenImage');
+        const previewContainer = document.getElementById('previewContainer');
+        const mainCanvas = document.getElementById('mainCanvas');
+        const warningModal = document.getElementById('warningModal');
+        const warnSwitchBtn = document.getElementById('warnSwitchBtn');
+        const warnContinueBtn = document.getElementById('warnContinueBtn');
+        const compatibilityMode = document.getElementById('compatibilityMode');
+        const compatModeContainer = document.getElementById('compatModeContainer');
+        const passwordTools = document.getElementById('passwordTools');
+        
+        const DEFAULT_KEY = "HILBERT_SCRAMBLER_DEFAULT_KEY"; // Default key
+
+        // --- Theme Init ---
+        function initTheme() {
+            if (localStorage.theme === 'light' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+                htmlEl.classList.remove('dark');
+            } else { htmlEl.classList.add('dark'); }
+            if (localStorage.colorTheme === 'miku') {
+                htmlEl.setAttribute('data-theme', 'miku');
+            }
+        }
+
+        // --- State ---
+        let fileQueue = []; 
+        let activeFileIndex = -1;
+        let isScrambleMode = true;
+        let isBatchProcessing = false;
+        let batchQueue = [];
+        let batchTotal = 0;
+        let batchCurrent = 0;
+        let batchSkipped = 0;
+        let batchStartTime = 0;
+
+        // --- Main Init ---
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof lucide !== 'undefined') lucide.createIcons();
             initTheme();
             initWorker();
+            document.addEventListener('paste', (e) => {
+                const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+                const files = [];
+                for (let index in items) { if (items[index].kind === 'file') files.push(items[index].getAsFile()); }
+                if (files.length > 0) handleFiles(files);
+            });
         });
 
-        // --- 核心功能：智能防重复混淆检测 ---
-        
-        // 全局状态标记 (Explicit State)
-        let currentImageState = 'original'; // 'original', 'scrambled'
-
-        function isLikelyScrambled(ctx, width, height) {
-            // 1. 优先检查状态标记 (最可靠)
-            if (currentImageState === 'scrambled') {
-                return true;
+        // --- Compatibility Mode Toggle ---
+        compatibilityMode.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                keyInput.disabled = true;
+                keyInput.placeholder = "兼容模式无需密码";
+                keyInput.value = "";
+                keyInput.classList.add('input-disabled');
+                togglePass.disabled = true;
+                passwordTools.classList.add('hidden'); 
+            } else {
+                keyInput.disabled = false;
+                keyInput.placeholder = "输入密码 (留空则使用默认)";
+                keyInput.classList.remove('input-disabled');
+                togglePass.disabled = false;
+                passwordTools.classList.remove('hidden');
             }
+        });
 
-            // 2. 检测文件名 (针对用户直接上传了上次的混淆图)
-            if (originalFileName && (originalFileName.includes('_obfuscated') || originalFileName.includes('混淆'))) {
-                return true;
-            }
-
-            // 3. 辅助检测：像素特征 (针对未知来源图)
-            // 仅当状态为 'original' 且文件名也正常时才启用此检测，作为最后的防线
-            // 调低阈值到 20，更敏感
+        // --- Logic ---
+        function isLikelyScrambled(ctx, width, height, fileName) {
+            if (fileName && (fileName.includes('_obfuscated') || fileName.includes('混淆'))) return true;
             const sampleW = Math.min(width, 100);
             const sampleH = Math.min(height, 100);
             const startX = Math.floor((width - sampleW) / 2);
             const startY = Math.floor((height - sampleH) / 2);
-            
             try {
                 const data = ctx.getImageData(startX, startY, sampleW, sampleH).data;
-                let totalDiff = 0;
-                let count = 0;
-                
+                let totalDiff = 0, count = 0;
                 for(let i = 0; i < data.length - 4; i += 4) { 
                     const r1 = data[i], g1 = data[i+1], b1 = data[i+2];
                     const r2 = data[i+4], g2 = data[i+5], b2 = data[i+6];
-                    
                     totalDiff += Math.abs(r1 - r2) + Math.abs(g1 - g2) + Math.abs(b1 - b2);
                     count++;
                 }
-                
-                const avgDiff = totalDiff / count;
-                // console.log('Diff Score:', avgDiff);
-                return avgDiff > 25; // 降低阈值
-            } catch (e) {
-                return false;
-            }
+                return (totalDiff / count) > 25; 
+            } catch (e) { return false; }
         }
 
-        // --- Worker Initialization ---
+        // --- Worker ---
         let imageWorker = null;
         let fullscreenPreviewUrl = null;
-        // Performance timing
         let processingStartTime = 0;
         let lastProcessingDuration = 0;
         
@@ -700,92 +762,102 @@
             imageWorker = new Worker(window.URL.createObjectURL(blob));
             
             imageWorker.onmessage = function(e) {
-                const { success, buffer, error } = e.data;
+                const { success, buffer, error, id } = e.data;
                 
-                // Stop Timer & Calculate Duration
+                // Default: Calc time for single item (overwritten later if batch finishes)
                 lastProcessingDuration = performance.now() - processingStartTime;
                 
+                const itemIndex = fileQueue.findIndex(i => i.id === id);
+                if (itemIndex === -1) return;
+                const item = fileQueue[itemIndex];
+                
                 const resultData = new Uint8ClampedArray(buffer);
-                const width = canvas.width;
-                const height = canvas.height;
+                const width = item.width;
+                const height = item.height;
                 const resultImageData = new ImageData(resultData, width, height);
                 
-                // Draw to canvas
-                ctx.putImageData(resultImageData, 0, 0);
-                
-                // --- FIX: Invalidate old cache IMMEDIATELY ---
-                if (fullscreenPreviewUrl) {
-                    URL.revokeObjectURL(fullscreenPreviewUrl);
-                    fullscreenPreviewUrl = null;
+                item.resultImageData = resultImageData; 
+                item.status = success ? 'done' : 'error';
+                if(success) {
+                    item.state = isScrambleMode ? 'scrambled' : 'original';
                 }
+
+                const tempC = document.createElement('canvas');
+                tempC.width = width;
+                tempC.height = height;
+                const tempCtx = tempC.getContext('2d');
+                tempCtx.putImageData(resultImageData, 0, 0);
                 
-                // Define UI Update Function
-                const finishUI = () => {
-                    loadingOverlay.classList.add('hidden');
-                    processBtn.disabled = false;
-                    
-                    // Enable download immediately
-                    downloadBtn.disabled = false;
-
-                    if (success) {
-                        if (isScrambleMode) {
-                            currentImageState = 'scrambled';
-                        } else {
-                            currentImageState = 'original';
-                        }
-                        updateDownloadUrl();
-                    } else {
-                        loadingOverlay.classList.remove('hidden');
-                        spinner.classList.add('hidden');
-                        errorIcon.classList.remove('hidden');
-                        loadingText.innerText = error;
-                        loadingText.className = "text-rose-500 dark:text-rose-400 shake-anim font-bold";
-                        
-                        setTimeout(() => {
-                            loadingOverlay.classList.add('hidden');
-                            spinner.classList.remove('hidden');
-                            errorIcon.classList.add('hidden');
-                            loadingText.className = "text-gray-600 dark:text-gray-200 font-bold text-lg animate-pulse tracking-wide";
-                        }, 2000);
-                    }
-                    
-                    if (typeof lucide !== 'undefined') lucide.createIcons();
-                };
-
-                // --- PRE-GENERATE FULLSCREEN PREVIEW ---
-                // Move UI unlock logic INSIDE the callback to ensure blob is ready
-                canvas.toBlob((blob) => {
+                tempC.toBlob((blob) => {
                     if (blob) {
-                        fullscreenPreviewUrl = URL.createObjectURL(blob);
+                        const url = URL.createObjectURL(blob);
+                        if (item.thumbUrl && item.thumbUrl.startsWith('blob:')) URL.revokeObjectURL(item.thumbUrl);
+                        item.thumbUrl = url; 
+                        item.blob = blob; 
                     }
-                    // Unlock UI only after blob is generated
-                    // This prevents the "click doesn't work immediately" issue
-                    finishUI();
+                    
+                    if (itemIndex === activeFileIndex) {
+                         ctx.putImageData(resultImageData, 0, 0);
+                         if (fullscreenPreviewUrl) { URL.revokeObjectURL(fullscreenPreviewUrl); fullscreenPreviewUrl = null; }
+                         canvas.toBlob((b) => { if(b) fullscreenPreviewUrl = URL.createObjectURL(b); });
+                         
+                         if (!isBatchProcessing) {
+                             loadingOverlay.classList.add('hidden');
+                             processBtn.disabled = false;
+                             downloadBtn.disabled = !success;
+                             if (success) updateDownloadUrl();
+                             else showError(error);
+                         }
+                    }
+                    
+                    updateFileListUI();
+                    
+                    if (isBatchProcessing) {
+                         batchCurrent++;
+                         if (batchCurrent < batchTotal) {
+                             loadingText.innerText = `正在处理... (${batchCurrent + 1}/${batchTotal})`;
+                             processNextInBatch();
+                         } else {
+                             isBatchProcessing = false;
+                             loadingOverlay.classList.add('hidden');
+                             processBtn.disabled = false;
+                             
+                             // --- 修改重点：批量完成后，计算总耗时 ---
+                             lastProcessingDuration = performance.now() - batchStartTime;
+                             
+                             // 刷新一下当前显示的图片信息，把总耗时更新上去
+                             if (activeFileIndex !== -1) {
+                                 updateDownloadUrl();
+                                 // 额外提示一下
+                                 const modeText = isScrambleMode ? "混淆" : "还原";
+                                 const timeStr = lastProcessingDuration > 1000 ? (lastProcessingDuration / 1000).toFixed(2) + 's' : Math.round(lastProcessingDuration) + 'ms';
+                                 document.getElementById('resultInfo').innerText = `全部${modeText}完成 | 总耗时: ${timeStr}`;
+                             }
+                         }
+                    }
                 });
             };
         }
-
-        // --- Theme Logic ---
-        const htmlEl = document.documentElement;
-        const themeToggle = document.getElementById('themeToggle');
-        const colorToggle = document.getElementById('colorToggle');
         
-        function initTheme() {
-            if (localStorage.theme === 'light' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: light)').matches)) {
-                htmlEl.classList.remove('dark');
-            } else {
-                htmlEl.classList.add('dark');
-            }
-            if (localStorage.colorTheme === 'miku') {
-                htmlEl.setAttribute('data-theme', 'miku');
-            }
+        function showError(msg) {
+             loadingOverlay.classList.remove('hidden');
+             spinner.classList.add('hidden');
+             errorIcon.classList.remove('hidden');
+             loadingText.innerText = msg;
+             loadingText.className = "text-rose-500 dark:text-rose-400 shake-anim font-bold";
+             setTimeout(() => {
+                 loadingOverlay.classList.add('hidden');
+                 spinner.classList.remove('hidden');
+                 errorIcon.classList.add('hidden');
+                 loadingText.className = "text-gray-600 dark:text-gray-200 font-bold text-lg animate-pulse tracking-wide";
+             }, 2000);
         }
-        
+
+        // --- Event Listeners ---
         themeToggle.addEventListener('click', () => {
             htmlEl.classList.toggle('dark');
             localStorage.theme = htmlEl.classList.contains('dark') ? 'dark' : 'light';
         });
-
         colorToggle.addEventListener('click', () => {
             const current = htmlEl.getAttribute('data-theme');
             if (current === 'miku') {
@@ -797,232 +869,286 @@
             }
         });
 
-        // --- Fullscreen Logic ---
-        const fullscreenModal = document.getElementById('fullscreenModal');
-        const fullscreenImage = document.getElementById('fullscreenImage');
-        const previewContainer = document.getElementById('previewContainer');
-        const mainCanvas = document.getElementById('mainCanvas');
-
         previewContainer.addEventListener('click', (e) => {
             if (mainCanvas.classList.contains('hidden')) return;
             if (e.target.closest('button')) return;
-
-            // Use pre-generated URL if available, fallback to slow dataURL
-            if (fullscreenPreviewUrl) {
-                fullscreenImage.src = fullscreenPreviewUrl;
-            } else {
-                fullscreenImage.src = mainCanvas.toDataURL();
-            }
-            
+            if (fullscreenPreviewUrl) fullscreenImage.src = fullscreenPreviewUrl;
+            else fullscreenImage.src = mainCanvas.toDataURL();
             fullscreenModal.classList.remove('hidden');
             void fullscreenModal.offsetWidth; 
             fullscreenModal.classList.remove('opacity-0');
             fullscreenImage.classList.remove('scale-95');
             fullscreenImage.classList.add('scale-100');
         });
-
         fullscreenModal.addEventListener('click', () => {
             fullscreenModal.classList.add('opacity-0');
             fullscreenImage.classList.remove('scale-100');
             fullscreenImage.classList.add('scale-95');
-            setTimeout(() => {
-                fullscreenModal.classList.add('hidden');
-            }, 200); // Match CSS duration
+            setTimeout(() => { fullscreenModal.classList.add('hidden'); }, 200);
         });
 
-        // --- Warning Modal Logic ---
-        const warningModal = document.getElementById('warningModal');
-        const warnSwitchBtn = document.getElementById('warnSwitchBtn');
-        const warnContinueBtn = document.getElementById('warnContinueBtn');
+        function showWarningModal(type) {
+            const titleEl = document.getElementById('warningModalTitle');
+            const textEl = document.getElementById('warningModalText');
+            const btnGrid = document.getElementById('warningModalButtons');
 
-        function showWarningModal() {
             warningModal.classList.remove('hidden');
-            // Small delay to allow transition
             requestAnimationFrame(() => {
                 warningModal.classList.remove('opacity-0');
                 document.getElementById('warningModalContent').classList.remove('scale-95');
                 document.getElementById('warningModalContent').classList.add('scale-100');
             });
+
+            if (type === 'double_scramble') {
+                titleEl.innerText = "疑似重复混淆";
+                textEl.innerHTML = "这张图片看起来已经混淆过了。<br>如果在【混淆】的基础上再次混淆，可能导致<span class='text-rose-500 font-bold'>无法还原</span>！";
+                setupWarningButtons("切换还原", "智能处理 (跳过已混淆)", 
+                    () => { hideWarningModal(); modeUnscrambleBtn.click(); },
+                    () => { hideWarningModal(); startBatchProcess(); }
+                );
+            } else if (type === 'not_scrambled') {
+                titleEl.innerText = "包含未混淆原图";
+                textEl.innerHTML = "检测到列表中包含未混淆的原始图片。<br>如果强行还原，原图会变成<span class='text-rose-500 font-bold'>乱码</span>！";
+                // NEW: "Knowing" button for single action correction, or standard logic
+                // For consistency, we offer Switch or Skip. Or user requested just "Know it -> switch".
+                // Implementing requested logic:
+                 titleEl.innerText = "图片未混淆";
+                 textEl.innerHTML = "图片貌似还没有混淆呢~<br>请先混淆吧~";
+                 btnGrid.innerHTML = `
+                    <button id="warnSwitchToScrambleBtn" class="col-span-2 bg-skin-primary hover:brightness-110 text-white py-3.5 rounded-2xl font-bold transition-all shadow-lg shadow-skin-primary/20 flex items-center justify-center gap-2 active:scale-95">
+                        知道啦
+                    </button>
+                `;
+                document.getElementById('warnSwitchToScrambleBtn').onclick = () => { 
+                    hideWarningModal(); 
+                    modeScrambleBtn.click(); 
+                };
+            }
         }
 
+        function setupWarningButtons(cancelText, confirmText, onCancel, onConfirm) {
+            const btnGrid = document.getElementById('warningModalButtons');
+            btnGrid.innerHTML = `
+                <button id="warnSwitchBtn" class="col-span-1 bg-skin-primary hover:brightness-110 text-white py-3.5 rounded-2xl font-bold transition-all shadow-lg shadow-skin-primary/20 flex items-center justify-center gap-2 active:scale-95">
+                    <i data-lucide="arrow-right-left" class="w-4 h-4"></i> ${cancelText}
+                </button>
+                <button id="warnContinueBtn" class="col-span-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 py-3.5 rounded-2xl font-bold transition-all active:scale-95">
+                    ${confirmText}
+                </button>
+            `;
+            document.getElementById('warnSwitchBtn').onclick = onCancel;
+            document.getElementById('warnContinueBtn').onclick = onConfirm;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+        
         function hideWarningModal() {
             warningModal.classList.add('opacity-0');
             document.getElementById('warningModalContent').classList.remove('scale-100');
             document.getElementById('warningModalContent').classList.add('scale-95');
-            setTimeout(() => {
-                warningModal.classList.add('hidden');
-            }, 200);
+            setTimeout(() => { warningModal.classList.add('hidden'); }, 200);
         }
-
-        warnSwitchBtn.addEventListener('click', () => {
-            hideWarningModal();
-            modeUnscrambleBtn.click(); // Auto switch to Unscramble
-        });
-
-        warnContinueBtn.addEventListener('click', () => {
-            hideWarningModal();
-            executeProcessing(); // Force continue
-        });
         
-        // Clicking outside modal to dismiss (optional, maybe safer to force choice)
-        warningModal.addEventListener('click', (e) => {
+        warningModal.addEventListener('click', (e) => { 
             if (e.target === warningModal) {
-                hideWarningModal();
+                hideWarningModal(); 
+                isBatchProcessing = false; 
             }
         });
 
-        // --- UI Variables ---
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const canvas = document.getElementById('mainCanvas');
-        const ctx = canvas.getContext('2d', { willReadFrequently: true });
-        const processBtn = document.getElementById('processBtn');
-        const downloadBtn = document.getElementById('downloadBtn');
-        const keyInput = document.getElementById('keyInput');
-        const togglePass = document.getElementById('togglePass');
-        const imageMeta = document.getElementById('imageMeta');
-        
-        const genKeyBtn = document.getElementById('genKeyBtn');
-        const copyKeyBtn = document.getElementById('copyKeyBtn');
-        const resetBtn = document.getElementById('resetBtn');
-
-        const modeHighlight = document.getElementById('modeHighlight');
-        const modeScrambleBtn = document.getElementById('modeScramble');
-        const modeUnscrambleBtn = document.getElementById('modeUnscramble');
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        const loadingText = document.getElementById('loadingText');
-        const spinner = document.getElementById('spinner');
-        const errorIcon = document.getElementById('errorIcon');
-        const forceDecryptCheckbox = document.getElementById('forceDecrypt');
-        
-        let currentFile = null;
-        let isScrambleMode = true;
-        let originalImageData = null;
-        let originalFileName = "";
-        let originalMimeType = "image/png";
-
-        // --- Password Logic ---
-        
         togglePass.addEventListener('click', () => {
-            const currentType = keyInput.getAttribute('type');
-            const newType = currentType === 'password' ? 'text' : 'password';
-            keyInput.setAttribute('type', newType);
-            
-            if (newType === 'text') {
-                togglePass.innerHTML = '<i data-lucide="eye" class="w-5 h-5 text-skin-primary"></i>';
-            } else {
-                togglePass.innerHTML = '<i data-lucide="eye-off" class="w-5 h-5"></i>';
-            }
-            if (typeof lucide !== 'undefined') lucide.createIcons();
+            const type = keyInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            keyInput.setAttribute('type', type);
+            togglePass.innerHTML = type === 'text' ? '<i data-lucide="eye" class="w-5 h-5 text-skin-primary"></i>' : '<i data-lucide="eye-off" class="w-5 h-5"></i>';
+            lucide.createIcons();
         });
-
-        // --- Password Generator ---
-        
         function generatePassword(length = 12) {
             const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
-            let retVal = "";
-            for (let i = 0, n = charset.length; i < length; ++i) {
-                retVal += charset.charAt(Math.floor(Math.random() * n));
-            }
-            return retVal;
+            let ret = "";
+            for (let i = 0; i < length; ++i) ret += charset.charAt(Math.floor(Math.random() * charset.length));
+            return ret;
         }
-
         genKeyBtn.addEventListener('click', () => {
-            const newPass = generatePassword(12);
-            keyInput.value = newPass;
-            
+            keyInput.value = generatePassword(12);
             if(keyInput.getAttribute('type') === 'password') {
                 keyInput.setAttribute('type', 'text');
                 togglePass.innerHTML = '<i data-lucide="eye" class="w-5 h-5 text-skin-primary"></i>';
-                if (typeof lucide !== 'undefined') lucide.createIcons();
+                lucide.createIcons();
             }
-
             keyInput.classList.add('ring-2', 'ring-skin-primary', 'border-skin-primary');
-            setTimeout(() => {
-                keyInput.classList.remove('ring-2', 'ring-skin-primary', 'border-skin-primary');
-            }, 500);
+            setTimeout(() => keyInput.classList.remove('ring-2', 'ring-skin-primary', 'border-skin-primary'), 500);
         });
-
-        // --- Copy ---
-
-        async function copyToClipboard(text) {
-            if (navigator.clipboard && window.isSecureContext) {
-                try {
-                    await navigator.clipboard.writeText(text);
-                    return true;
-                } catch (err) {
-                    console.warn("Clipboard API failed, trying fallback...", err);
-                }
-            }
-            try {
-                const textArea = document.createElement("textarea");
-                textArea.value = text;
-                textArea.style.position = "fixed";
-                textArea.style.left = "-9999px";
-                textArea.style.top = "0";
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                const successful = document.execCommand('copy');
-                document.body.removeChild(textArea);
-                return successful;
-            } catch (err) {
-                console.error("Fallback copy failed", err);
-                return false;
-            }
-        }
-
         copyKeyBtn.addEventListener('click', async () => {
-            if(!keyInput.value) {
-                alert("密码框为空，无法复制");
-                return;
+            if(!keyInput.value) return alert("当前使用默认密码，无需复制");
+            try { await navigator.clipboard.writeText(keyInput.value); } catch (e) {
+                const ta = document.createElement("textarea"); ta.value = keyInput.value; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
             }
-            
-            const success = await copyToClipboard(keyInput.value);
-            
-            if (success) {
-                const originalHTML = copyKeyBtn.innerHTML;
-                copyKeyBtn.innerHTML = '<i data-lucide="check" class="w-3 h-3 text-green-500"></i> 已复制';
-                copyKeyBtn.classList.add('bg-green-50', 'text-green-600');
+            const originalHTML = copyKeyBtn.innerHTML;
+            copyKeyBtn.innerHTML = '<i data-lucide="check" class="w-3 h-3 text-green-500"></i> 已复制';
+            copyKeyBtn.classList.add('bg-green-50', 'text-green-600');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            setTimeout(() => {
+                copyKeyBtn.innerHTML = originalHTML;
+                copyKeyBtn.classList.remove('bg-green-50', 'text-green-600');
                 if (typeof lucide !== 'undefined') lucide.createIcons();
-                setTimeout(() => {
-                    copyKeyBtn.innerHTML = originalHTML;
-                    copyKeyBtn.classList.remove('bg-green-50', 'text-green-600');
-                    if (typeof lucide !== 'undefined') lucide.createIcons();
-                }, 2000);
-            } else {
-                alert('复制失败，请手动复制');
-            }
+            }, 2000);
         });
 
         // --- Mode Switching ---
         function updateModeUI() {
             if (isScrambleMode) {
-                modeHighlight.style.transform = 'translateX(0)';
-                
+                modeHighlight.style.left = '0.375rem'; 
                 modeScrambleBtn.classList.remove('text-gray-500', 'dark:text-gray-400');
                 modeScrambleBtn.classList.add('text-skin-primary', 'dark:text-white');
-                
                 modeUnscrambleBtn.classList.remove('text-skin-primary', 'dark:text-white');
                 modeUnscrambleBtn.classList.add('text-gray-500', 'dark:text-gray-400');
-                
                 document.getElementById('processBtnText').innerText = "开始混淆 (加密)";
-            } else {
-                modeHighlight.style.transform = 'translateX(100%)';
                 
+                // Encrypt Mode: Disable Compatibility Mode
+                compatModeContainer.classList.add('hidden');
+                if (compatibilityMode.checked) {
+                    compatibilityMode.checked = false;
+                    compatibilityMode.dispatchEvent(new Event('change'));
+                }
+            } else {
+                modeHighlight.style.left = '50%';
                 modeUnscrambleBtn.classList.remove('text-gray-500', 'dark:text-gray-400');
                 modeUnscrambleBtn.classList.add('text-skin-primary', 'dark:text-white');
-                
                 modeScrambleBtn.classList.remove('text-skin-primary', 'dark:text-white');
                 modeScrambleBtn.classList.add('text-gray-500', 'dark:text-gray-400');
-                
                 document.getElementById('processBtnText').innerText = "开始还原 (解密)";
+                
+                // Decrypt Mode: Show Compatibility Mode Option
+                compatModeContainer.classList.remove('hidden');
             }
         }
-        modeScrambleBtn.addEventListener('click', (e) => { e.preventDefault(); isScrambleMode = true; updateModeUI(); });
-        modeUnscrambleBtn.addEventListener('click', (e) => { e.preventDefault(); isScrambleMode = false; updateModeUI(); });
+        modeScrambleBtn.addEventListener('click', () => { isScrambleMode = true; updateModeUI(); });
+        modeUnscrambleBtn.addEventListener('click', () => { isScrambleMode = false; updateModeUI(); });
 
-        // --- File & Event Logic ---
+        // --- File Queue Logic ---
+        function handleFiles(files) {
+            if (files.length === 0) return;
+            Array.from(files).forEach(file => {
+                if (!file.type.match('image.*')) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const tempCanvas = document.createElement('canvas');
+                        tempCanvas.width = img.width;
+                        tempCanvas.height = img.height;
+                        const tempCtx = tempCanvas.getContext('2d');
+                        tempCtx.drawImage(img, 0, 0);
+                        const imageData = tempCtx.getImageData(0, 0, img.width, img.height);
+                        
+                        let state = 'original';
+                        if (isLikelyScrambled(tempCtx, img.width, img.height, file.name)) { state = 'scrambled'; }
+
+                        const newItem = {
+                            id: Date.now() + Math.random().toString(36).substr(2, 9),
+                            file: file,
+                            fileName: file.name,
+                            mimeType: file.type,
+                            width: img.width,
+                            height: img.height,
+                            originalImageData: imageData, 
+                            resultImageData: null, 
+                            status: 'new', 
+                            state: state, 
+                            thumbUrl: e.target.result,
+                            blob: null 
+                        };
+                        fileQueue.push(newItem);
+                        if (activeFileIndex === -1) selectFile(fileQueue.length - 1);
+                        else updateFileListUI();
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+            fileInput.value = ''; 
+        }
+
+        function selectFile(index) {
+            if (index < 0 || index >= fileQueue.length) return;
+            activeFileIndex = index;
+            const item = fileQueue[index];
+            
+            canvas.width = item.width;
+            canvas.height = item.height;
+            const dataToShow = item.resultImageData ? item.resultImageData : item.originalImageData;
+            ctx.putImageData(dataToShow, 0, 0);
+            
+            imageMeta.innerText = `${item.width} x ${item.height} px | ${item.mimeType.split('/')[1].toUpperCase()}`;
+            imageMeta.classList.remove('hidden');
+            
+            canvas.classList.remove('hidden');
+            document.getElementById('placeholderText').classList.add('hidden');
+            processBtn.disabled = false;
+            resetBtn.classList.remove('hidden'); 
+            
+            if (item.resultImageData) {
+                downloadBtn.disabled = false;
+                // Update stats
+                 let infoText = "处理完成";
+                 if (lastProcessingDuration > 0) {
+                    const timeStr = lastProcessingDuration > 1000 ? (lastProcessingDuration / 1000).toFixed(2) + 's' : Math.round(lastProcessingDuration) + 'ms';
+                    infoText += ` | 耗时: ${timeStr}`;
+                 }
+                 document.getElementById('resultInfo').innerText = infoText;
+            } else {
+                downloadBtn.disabled = true;
+                document.getElementById('resultInfo').innerText = "等待处理";
+            }
+            
+            if (fullscreenPreviewUrl) URL.revokeObjectURL(fullscreenPreviewUrl);
+            fullscreenPreviewUrl = null; 
+            canvas.toBlob((blob) => { if(blob) fullscreenPreviewUrl = URL.createObjectURL(blob); });
+            
+            previewContainer.classList.remove('cursor-default');
+            previewContainer.classList.add('cursor-zoom-in');
+            
+            updateFileListUI();
+        }
+
+        function updateFileListUI() {
+            fileListContainer.innerHTML = '';
+            
+            const hasProcessed = fileQueue.some(i => i.status === 'done');
+            downloadAllBtn.disabled = !hasProcessed;
+            downloadAllBtn.className = hasProcessed 
+                ? "bg-purple-500 hover:bg-purple-400 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg hover:shadow-purple-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition-all flex items-center gap-2 transform active:scale-95 group"
+                : "bg-gray-200 dark:bg-gray-700 text-gray-400 px-6 py-2.5 rounded-xl font-bold shadow-none cursor-not-allowed opacity-50 flex items-center gap-2";
+
+            if (fileQueue.length === 0) {
+                fileListContainer.innerHTML = `
+                    <div class="text-center mt-4 opacity-30">
+                        <i data-lucide="layers" class="w-6 h-6 mx-auto mb-1"></i>
+                        <span class="text-[9px]">空</span>
+                    </div>`;
+                return;
+            }
+            
+            fileQueue.forEach((item, idx) => {
+                const div = document.createElement('div');
+                const activeClass = 'ring-2 ring-skin-primary ring-offset-1 ring-offset-white dark:ring-offset-gray-800 z-10';
+                const inactiveClass = 'border-transparent hover:border-gray-300 dark:hover:border-gray-600 opacity-80 hover:opacity-100';
+                div.className = `thumb-item relative w-full aspect-square rounded-xl overflow-hidden cursor-pointer border-2 transition-all duration-200 ease-out transform hover:scale-105 active:scale-90 ${idx === activeFileIndex ? activeClass : inactiveClass}`;
+                div.onclick = () => selectFile(idx);
+                
+                const img = document.createElement('img');
+                img.src = item.thumbUrl;
+                img.className = "w-full h-full object-cover";
+                div.appendChild(img);
+                
+                let badge = '';
+                if (item.status === 'done') badge = `<div class="absolute top-1 right-1 bg-green-500 w-2.5 h-2.5 rounded-full shadow-sm border border-white dark:border-gray-800"></div>`;
+                else if (item.status === 'error') badge = `<div class="absolute top-1 right-1 bg-rose-500 w-2.5 h-2.5 rounded-full shadow-sm border border-white dark:border-gray-800"></div>`;
+                else badge = `<div class="absolute top-1 right-1 bg-blue-400 w-2.5 h-2.5 rounded-full shadow-sm animate-pulse border border-white dark:border-gray-800"></div>`;
+                const numberBadge = `<div class="absolute bottom-1 left-1 bg-black/60 backdrop-blur-[2px] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md shadow-sm pointer-events-none leading-none min-w-[16px] text-center">${idx + 1}</div>`;
+                div.innerHTML += badge + numberBadge;
+                fileListContainer.appendChild(div);
+            });
+        }
 
         dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-skin-primary', 'bg-skin-primary-light/80'); });
         dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('border-skin-primary', 'bg-skin-primary-light/80'); });
@@ -1030,166 +1156,167 @@
             e.preventDefault();
             e.stopPropagation();
             dropZone.classList.remove('border-skin-primary', 'bg-skin-primary-light/80');
-            if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+            if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
         });
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length) handleFile(e.target.files[0]);
-        });
+        fileInput.addEventListener('change', (e) => { handleFiles(e.target.files); });
 
-        function handleFile(file) {
-            if (!file.type.match('image.*')) {
-                alert('请上传图片文件 (PNG, JPG, WebP)');
+        // --- Processing ---
+        function processNextInBatch() {
+            if (batchCurrent >= batchTotal) return; 
+            
+            const item = fileQueue[batchCurrent];
+            activeFileIndex = batchCurrent; 
+            
+            // --- SMART SKIP LOGIC ---
+            let shouldSkip = false;
+            // 修复：只有在真正执行处理前才判断是否跳过
+            // "IsScrambleMode" -> Target: scrambled. If state is already scrambled, skip.
+            if (isScrambleMode && item.state === 'scrambled') shouldSkip = true;
+            // "IsDecryptMode" -> Target: original. If state is already original, skip.
+            if (!isScrambleMode && item.state === 'original') shouldSkip = true;
+
+            if (shouldSkip) {
+                batchSkipped++; // Assume defined
+                loadingText.innerText = `正在处理... (${batchCurrent + 1}/${batchTotal})`;
+                setTimeout(() => {
+                    batchCurrent++;
+                    if (batchCurrent < batchTotal) {
+                        processNextInBatch();
+                    } else {
+                        // finishBatch
+                        isBatchProcessing = false;
+                        loadingOverlay.classList.add('hidden');
+                        processBtn.disabled = false;
+                        lastProcessingDuration = performance.now() - batchStartTime;
+                        if (activeFileIndex !== -1) {
+                            selectFile(activeFileIndex); 
+                            updateDownloadUrl();
+                            const modeText = isScrambleMode ? "混淆" : "还原";
+                            const timeStr = lastProcessingDuration > 1000 ? (lastProcessingDuration / 1000).toFixed(2) + 's' : Math.round(lastProcessingDuration) + 'ms';
+                            const processedCount = batchTotal - batchSkipped; // Fixed batchSkipped var
+                            document.getElementById('resultInfo').innerText = `全部${modeText}完成 | 总耗时: ${timeStr}`;
+                        }
+                    }
+                }, 50); 
                 return;
             }
-            currentFile = file;
-            originalFileName = file.name;
-            originalMimeType = file.type;
-            
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    try {
-                        canvas.width = img.width;
-                        canvas.height = img.height;
-                        
-                        ctx.drawImage(img, 0, 0);
-                        originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                        
-                        // Reset state on new file load
-                        currentImageState = 'original';
-                        // Safe heuristic check
-                        if (isLikelyScrambled(ctx, canvas.width, canvas.height)) {
-                            currentImageState = 'scrambled';
-                        }
 
-                        // --- FIX: Invalidate old cache IMMEDIATELY ---
-                        if (fullscreenPreviewUrl) {
-                            URL.revokeObjectURL(fullscreenPreviewUrl);
-                            fullscreenPreviewUrl = null;
-                        }
+            const width = item.width;
+            const height = item.height;
+            const buffer = item.originalImageData.data.buffer;
+            const rawKey = keyInput.value;
+            const key = rawKey ? rawKey : DEFAULT_KEY;
+            const isCompat = compatibilityMode.checked; 
 
-                        // Generate initial preview blob for quick open
-                        canvas.toBlob((blob) => {
-                            if (blob) {
-                                fullscreenPreviewUrl = URL.createObjectURL(blob);
-                            }
-                        });
-
-                        canvas.classList.remove('hidden');
-                        document.getElementById('placeholderText').classList.add('hidden');
-                        processBtn.disabled = false;
-                        imageMeta.innerText = `${img.width} x ${img.height} px | ${file.type.split('/')[1].toUpperCase()}`;
-                        imageMeta.classList.remove('hidden');
-                        resetBtn.classList.remove('hidden'); 
-                        downloadBtn.disabled = true;
-                        document.getElementById('resultInfo').innerText = "图片已加载，准备处理";
-                        
-                        // Update cursor
-                        previewContainer.classList.remove('cursor-default');
-                        previewContainer.classList.add('cursor-zoom-in');
-                        
-                        canvas.style.opacity = '0';
-                        setTimeout(() => canvas.style.opacity = '1', 50);
-                    } catch (err) {
-                        console.error("Error loading image:", err);
-                        alert("图片加载失败，请重试或更换图片");
-                    }
-                };
-                img.onerror = () => {
-                    alert("图片文件损坏或格式不支持");
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-            fileInput.value = ''; 
-        }
-
-        // --- Reset Logic ---
-        resetBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if(originalImageData) {
-                ctx.putImageData(originalImageData, 0, 0);
-                
-                // Regen blob for reset state
-                canvas.toBlob((blob) => {
-                    if (fullscreenPreviewUrl) URL.revokeObjectURL(fullscreenPreviewUrl);
-                    fullscreenPreviewUrl = URL.createObjectURL(blob);
-                });
-
-                document.getElementById('resultInfo').innerText = "已重置为原始图片";
-                currentImageState = 'original'; // Reset state
-                downloadBtn.disabled = true;
-            }
-        });
-
-        // --- Processing Logic (Main Thread) ---
-
-        // Split logic into two parts: Check & Execution
-        
-        function executeProcessing() {
-            const key = keyInput.value;
-            processBtn.disabled = true;
-            
-            // Reset Overlay
-            loadingOverlay.classList.remove('hidden');
-            spinner.classList.remove('hidden');
-            errorIcon.classList.add('hidden');
-            loadingText.innerText = isScrambleMode ? "正在混淆，请稍候..." : "正在还原，请稍候...";
-            loadingText.className = "text-gray-600 dark:text-gray-200 font-bold text-lg animate-pulse tracking-wide";
-            
-            // Start Timer
-            processingStartTime = performance.now();
-            
-            // Get Current Canvas Data
-            const width = canvas.width;
-            const height = canvas.height;
-            const currentImageData = ctx.getImageData(0, 0, width, height);
-            const buffer = currentImageData.data.buffer; // ArrayBuffer
-            
-            // Send to Worker
             imageWorker.postMessage({
                 buffer: buffer,
                 width: width,
                 height: height,
                 keyStr: key,
                 isScramble: isScrambleMode,
-                forceDecrypt: forceDecryptCheckbox.checked
-            }, [buffer]); // Transfer buffer to worker
+                id: item.id,
+                isCompatibilityMode: isCompat
+            }, [buffer.slice(0)]); 
         }
 
-        processBtn.addEventListener('click', () => {
-            const key = keyInput.value;
-            if (!key) {
-                alert("请输入混淆密钥！");
-                keyInput.focus();
-                return;
-            }
+        function startBatchProcess() {
+            isBatchProcessing = true;
+            batchQueue = [...fileQueue]; 
+            batchTotal = fileQueue.length;
+            batchCurrent = 0;
+            batchSkipped = 0;
+            batchStartTime = performance.now();
+            
+            loadingOverlay.classList.remove('hidden');
+            spinner.classList.remove('hidden');
+            errorIcon.classList.add('hidden');
+            loadingText.innerText = `正在处理... (1/${batchTotal})`;
+            
+            processNextInBatch();
+        }
 
-            // --- NEW: Double Scramble Prevention ---
-            if (isScrambleMode) {
-                const isScrambled = isLikelyScrambled(ctx, canvas.width, canvas.height);
-                
-                if (isScrambled) {
-                    // Show Custom Modal instead of alert/confirm
-                    showWarningModal();
+        function executeProcessing() {
+            const rawKey = keyInput.value;
+            const key = rawKey ? rawKey : DEFAULT_KEY;
+            const isCompat = isScrambleMode ? false : compatibilityMode.checked;
+            
+            processBtn.disabled = true;
+            loadingOverlay.classList.remove('hidden');
+            spinner.classList.remove('hidden');
+            errorIcon.classList.add('hidden');
+            loadingText.innerText = isScrambleMode ? "正在混淆..." : "正在还原...";
+            
+            // Set start time for single process
+            processingStartTime = performance.now();
+            
+            const item = fileQueue[activeFileIndex];
+            const width = item.width;
+            const height = item.height;
+            const buffer = item.originalImageData.data.buffer;
+            
+            imageWorker.postMessage({
+                buffer: buffer,
+                width: width,
+                height: height,
+                keyStr: key,
+                isScramble: isScrambleMode,
+                id: item.id,
+                isCompatibilityMode: isCompat
+            }, [buffer.slice(0)]);
+        }
+
+        // Main Process Logic (Auto Batch)
+        processBtn.addEventListener('click', () => {
+            // Case 0: No files
+            if (fileQueue.length === 0) return;
+
+            // Case 1: Single File
+            if (fileQueue.length === 1) {
+                const item = fileQueue[0];
+                if (isScrambleMode && item.state === 'scrambled') {
+                    showWarningModal('double_scramble');
                     return;
                 }
-            }
+                if (!isScrambleMode && item.state === 'original') {
+                    showWarningModal('not_scrambled');
+                    return;
+                }
+                executeProcessing();
+            } 
+            // Case 2: Batch
+            else {
+                // Check mixed states
+                const hasAlreadyScrambled = fileQueue.some(i => i.state === 'scrambled');
+                const hasOriginal = fileQueue.some(i => i.state === 'original');
 
-            executeProcessing();
+                if (isScrambleMode && hasAlreadyScrambled) {
+                    showWarningModal('double_scramble');
+                    return;
+                }
+                if (!isScrambleMode && hasOriginal) {
+                    showWarningModal('not_scrambled');
+                    return;
+                }
+
+                startBatchProcess();
+            }
         });
 
         function updateDownloadUrl() {
             const format = document.getElementById('formatSelect').value;
             const quality = parseFloat(document.getElementById('qualityRange').value);
             let exportMime = format;
-            if (format === 'original') exportMime = originalMimeType;
+            const item = fileQueue[activeFileIndex];
+            if (format === 'original') exportMime = item ? item.mimeType : 'image/png';
 
             const dataUrl = canvas.toDataURL(exportMime, quality);
             downloadBtn.onclick = () => {
                 const link = document.createElement('a');
-                link.download = getDownloadName(isScrambleMode, exportMime);
+                const baseName = item ? item.fileName : "image";
+                const namePart = baseName.substring(0, baseName.lastIndexOf('.')) || baseName;
+                const suffix = isScrambleMode ? '_obfuscated' : '_restored';
+                const ext = exportMime.split('/')[1];
+                link.download = `${namePart}${suffix}.${ext}`;
                 link.href = dataUrl;
                 link.click();
             };
@@ -1198,31 +1325,56 @@
             const size = Math.round((dataUrl.length - head.length) * 3 / 4 / 1024);
             const formatName = exportMime.split('/')[1].toUpperCase();
             
-            // Update info with size AND duration
-            let infoText = `结果大小: ~${size} KB (${formatName})`;
+            let infoText = `结果: ~${size} KB`;
             if (lastProcessingDuration > 0) {
-                const timeStr = lastProcessingDuration > 1000 ? 
-                    (lastProcessingDuration / 1000).toFixed(2) + 's' : 
-                    Math.round(lastProcessingDuration) + 'ms';
+                const timeStr = lastProcessingDuration > 1000 ? (lastProcessingDuration / 1000).toFixed(2) + 's' : Math.round(lastProcessingDuration) + 'ms';
                 infoText += ` | 耗时: ${timeStr}`;
             }
             document.getElementById('resultInfo').innerText = infoText;
         }
 
-        function getDownloadName(scrambled, mime) {
-            const ext = mime.split('/')[1];
-            const base = originalFileName.substring(0, originalFileName.lastIndexOf('.')) || originalFileName;
-            const cleanBase = base.replace(/_obfuscated|_restored/g, '');
-            const suffix = scrambled ? '_obfuscated' : '_restored';
-            return `${cleanBase}${suffix}.${ext}`;
-        }
+        // --- Download All (ZIP) ---
+        downloadAllBtn.addEventListener('click', async () => {
+            if (!fileQueue.some(i => i.status === 'done')) return;
+            
+            const zip = new JSZip();
+            const folder = zip.folder("images");
+            let count = 0;
+            
+            const originalContent = downloadAllBtn.innerHTML;
+            downloadAllBtn.innerHTML = `<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> <span>打包中...</span>`;
+            downloadAllBtn.disabled = true;
+
+            fileQueue.forEach((item, i) => {
+                if (item.status === 'done' && item.blob) {
+                     const baseName = item.fileName.substring(0, item.fileName.lastIndexOf('.')) || item.fileName;
+                     const suffix = isScrambleMode ? '_obfuscated' : '_restored';
+                     const ext = item.mimeType.split('/')[1] || 'png';
+                     folder.file(`${baseName}${suffix}_${i+1}.${ext}`, item.blob);
+                     count++;
+                }
+            });
+
+            if (count > 0) {
+                const content = await zip.generateAsync({type:"blob"});
+                const url = URL.createObjectURL(content);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = "processed_images.zip";
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+
+            downloadAllBtn.innerHTML = originalContent;
+            downloadAllBtn.disabled = false;
+            lucide.createIcons();
+        });
         
         document.getElementById('formatSelect').addEventListener('change', () => { if(!downloadBtn.disabled) updateDownloadUrl(); });
         document.getElementById('qualityRange').addEventListener('input', (e) => {
             document.getElementById('qualityVal').innerText = e.target.value;
             if(!downloadBtn.disabled) updateDownloadUrl();
         });
-
     </script>
 </body>
 </html>
