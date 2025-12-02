@@ -211,10 +211,12 @@
         </header>
 
         <!-- Main Workspace -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+        <!-- 修改处：移除了 items-start，让子元素自然排列 -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
             
-            <!-- Controls Panel (Top on Mobile, Left on Desktop) -->
-            <div class="lg:col-span-4 xl:col-span-3 space-y-6 order-2 lg:order-1">
+            <!-- Controls Panel (Left / Top) -->
+            <!-- 修改处：移除了 order-2 lg:order-1，让它在移动端自然处于第一位 -->
+            <div class="lg:col-span-4 xl:col-span-3 space-y-6">
                 <!-- Upload Zone -->
                 <div class="glass-panel rounded-[2rem] p-6 shadow-xl transition-all hover:shadow-2xl hover:-translate-y-1">
                     <h2 class="text-xl font-bold mb-5 flex items-center gap-3 text-skin-primary dark:text-skin-primary">
@@ -351,17 +353,33 @@
             </div>
 
             <!-- Right Panel: Preview & List + Bottom Action Bar (Integrated) -->
-            <div class="lg:col-span-8 xl:col-span-9 flex gap-4 h-[500px] lg:h-[calc(100vh-14rem)] min-h-[600px] flex-col lg:flex-row order-1 lg:order-2">
+            <!-- 修改处：移除了 order-1 lg:order-2，让它在移动端自然处于第二位 -->
+            <div class="lg:col-span-8 xl:col-span-9 flex flex-col lg:flex-row gap-6 h-auto lg:h-[calc(100vh-14rem)] min-h-[600px]">
                 
+                <!-- Right: Sidebar List (Fixed Width, Full Height) -->
+                <!-- 修改处：添加 order-1 lg:order-2，确保在移动端它排在预览区前面（即中间位置） -->
+                <div class="w-full lg:w-28 flex-shrink-0 flex flex-col bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden h-auto order-1 lg:order-2">
+                    <div class="p-2 text-center border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800 flex-shrink-0">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase">图片列表</span>
+                    </div>
+                    <div id="fileList" class="flex flex-row lg:flex-col overflow-x-auto lg:overflow-y-auto p-3 gap-3 custom-scrollbar h-28 lg:h-auto no-scrollbar items-center lg:items-stretch">
+                        <!-- Thumbnails -->
+                        <div class="text-center opacity-30 w-full">
+                            <span class="text-[9px]">空</span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Left: Preview + Action Bar Wrapper -->
-                <div class="flex-1 flex flex-col h-full min-h-[400px]">
+                <!-- 修改处：添加 order-2 lg:order-1，确保在移动端它排在列表后面（即最下方） -->
+                <div class="flex-1 flex flex-col h-full min-h-[400px] order-2 lg:order-1">
                     
                     <!-- Canvas Container -->
                     <div id="previewContainer" class="flex-1 bg-white dark:bg-gray-800 rounded-3xl p-1 border border-gray-200 dark:border-gray-700 shadow-lg relative overflow-hidden group transition-colors cursor-default flex flex-col">
                         
                         <!-- Action Controls -->
                         <div class="absolute top-4 right-4 z-20 flex gap-2 pointer-events-none">
-                            <button id="resetBtn" class="hidden pointer-events-auto px-3 py-1 bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-700 text-xs font-bold rounded-full text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 shadow-md hover:shadow-lg transition-all flex items-center gap-1.5 group">
+                            <button id="resetBtn" class="hidden pointer-events-auto px-4 py-1.5 bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-700 text-xs font-bold rounded-full text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 shadow-md hover:shadow-lg transition-all flex items-center gap-1.5 group">
                                 <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 group-hover:-rotate-180 transition-transform duration-500 text-skin-primary"></i> 重置原图
                             </button>
                             <span id="imageMeta" class="px-4 py-1.5 bg-black/70 backdrop-blur-md text-xs font-medium rounded-full text-white hidden border border-white/10 shadow-md">0 x 0 px</span>
@@ -382,53 +400,40 @@
                             <p id="loadingText" class="text-gray-600 dark:text-gray-200 font-bold text-lg animate-pulse tracking-wide">正在处理中，请稍候...</p>
                         </div>
                         
-                        <div id="canvasWrapper" class="flex-1 relative bg-gray-50 dark:bg-gray-900/50 canvas-pattern rounded-2xl flex items-center justify-center overflow-hidden transition-colors border border-gray-100 dark:border-gray-700/50 pointer-events-none min-h-[300px]">
+                        <div id="canvasWrapper" class="flex-1 relative bg-gray-50 dark:bg-gray-900/50 canvas-pattern rounded-2xl flex items-center justify-center overflow-hidden transition-colors border border-gray-100 dark:border-gray-700/50 pointer-events-none">
                             <div id="placeholderText" class="text-gray-300 dark:text-gray-600 select-none pointer-events-none flex flex-col items-center animate-pulse">
-                                <div class="bg-gray-100 dark:bg-gray-800 p-5 rounded-full mb-4 shadow-inner">
-                                    <i data-lucide="image" class="w-12 h-12 opacity-50"></i>
+                                <div class="bg-gray-100 dark:bg-gray-800 p-6 rounded-full mb-4 shadow-inner">
+                                    <i data-lucide="image" class="w-16 h-16 opacity-50"></i>
                                 </div>
-                                <span class="font-bold text-base opacity-70">预览区域</span>
+                                <span class="font-bold text-lg opacity-70">预览区域</span>
                             </div>
                             <canvas id="mainCanvas" class="max-w-full max-h-full object-contain shadow-2xl hidden transition-opacity duration-300 relative z-10 rounded-xl"></canvas>
                         </div>
                     </div>
 
                     <!-- Action Bar (Separated, Bottom) -->
-                    <div class="glass-panel rounded-3xl p-4 mt-4 flex flex-col sm:flex-row justify-between items-center shadow-lg border-t border-white/50 dark:border-gray-700/50 gap-3">
-                        <div class="flex items-center gap-2 overflow-hidden w-full sm:w-auto justify-center sm:justify-start">
-                            <div class="text-xs text-gray-500 dark:text-gray-400 flex items-center font-medium truncate">
-                                <i data-lucide="info" class="w-4 h-4 inline mr-1.5 text-skin-primary dark:text-skin-primary flex-shrink-0"></i>
-                                <span id="resultInfo" class="truncate max-w-[200px]">请先上传图片</span>
+                    <div class="glass-panel rounded-3xl p-4 mt-4 flex justify-between items-center shadow-lg border-t border-white/50 dark:border-gray-700/50">
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            <div class="text-sm text-gray-500 dark:text-gray-400 flex items-center font-medium truncate">
+                                <i data-lucide="info" class="w-5 h-5 inline mr-2 text-skin-primary dark:text-skin-primary flex-shrink-0"></i>
+                                <span id="resultInfo" class="truncate">请先上传一张图片</span>
                             </div>
                         </div>
-                        <div class="flex gap-2 w-full sm:w-auto">
+                        <div class="flex gap-3 flex-shrink-0">
                             <!-- Single Download -->
-                            <button id="downloadBtn" disabled class="flex-1 sm:flex-none bg-emerald-500 hover:bg-emerald-400 text-white px-5 py-2.5 rounded-2xl font-bold shadow-lg hover:shadow-emerald-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition-all flex items-center justify-center gap-2 transform active:scale-95 group text-xs sm:text-sm">
-                                <i data-lucide="download" class="w-4 h-4 group-hover:animate-bounce"></i> 
-                                <span>下载</span>
+                            <button id="downloadBtn" disabled class="bg-emerald-500 hover:bg-emerald-400 text-white px-6 py-2.5 rounded-2xl font-bold shadow-lg hover:shadow-emerald-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition-all flex items-center gap-2 transform active:scale-95 group">
+                                <i data-lucide="download" class="w-5 h-5 group-hover:animate-bounce"></i> 
+                                <span class="hidden sm:inline">下载当前</span>
                             </button>
                             <!-- Batch Download -->
-                            <button id="downloadAllBtn" disabled class="flex-1 sm:flex-none bg-purple-500 hover:bg-purple-400 text-white px-5 py-2.5 rounded-2xl font-bold shadow-lg hover:shadow-purple-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition-all flex items-center justify-center gap-2 transform active:scale-95 group text-xs sm:text-sm">
-                                <i data-lucide="archive" class="w-4 h-4"></i> 
-                                <span>全部</span>
+                            <button id="downloadAllBtn" disabled class="bg-purple-500 hover:bg-purple-400 text-white px-6 py-2.5 rounded-2xl font-bold shadow-lg hover:shadow-purple-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition-all flex items-center gap-2 transform active:scale-95 group">
+                                <i data-lucide="archive" class="w-5 h-5"></i> 
+                                <span class="hidden sm:inline">下载全部</span>
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right: Sidebar List (Fixed Width, Full Height) -->
-                <div class="w-full lg:w-28 flex-shrink-0 flex flex-col bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden h-auto order-last lg:order-none">
-                    <div class="p-2 text-center border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800 flex-shrink-0">
-                        <span class="text-[10px] font-bold text-gray-400 uppercase">图片列表</span>
-                    </div>
-                    <div id="fileList" class="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar">
-                        <!-- Thumbnails (Static Initial State) -->
-                        <div class="h-full flex flex-col items-center justify-center opacity-30 gap-2 min-h-[100px]">
-                            <i data-lucide="layers" class="w-8 h-8"></i>
-                            <span class="text-[10px] font-bold">空</span>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
